@@ -2,14 +2,70 @@
 
 import random
 import arcade
+import math
 
 # --- Constants ---
 SPRITE_SCALING_PLAYER = 0.01
 SPRITE_SCALING_APPLE = 0.012
+SPRITE_SCALING_FORK = 0.01
+FORK_COUNT = 50
 APPLE_COUNT = 50
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
+
+class Apple(arcade.Sprite):
+    """
+    This class represents the apples on our screen. It is a child class of
+    the arcade library's "Sprite" class.
+    """
+
+    def reset_pos(self):
+        # Reset the apple to a random spot above the screen
+        self.center_y = random.randrange(SCREEN_HEIGHT + 20,
+                                         SCREEN_HEIGHT + 100)
+        self.center_x = random.randrange(SCREEN_WIDTH)
+
+    def update(self):
+        # Move the apple
+        self.center_y -= 1
+
+        # See if the apple has fallen off the bottom of the screen.
+        # If so, reset it.
+        if self.top < 0:
+            self.reset_pos()
+
+class Pitchfork(arcade.Sprite):
+
+    def __init__(self, pitchfork, sprite_scaling):
+        """ Constructor. """
+        # Call the parent class (Sprite) constructor
+        super().__init__(pitchfork, sprite_scaling)
+
+        # Current angle in radians
+        self.circle_angle = 0
+
+        # How far away from the center to orbit, in pixels
+        self.circle_radius = 0
+
+        # How fast to orbit, in radians per frame
+        self.circle_speed = 0.008
+
+        # Set the center of the point we will orbit around
+        self.circle_center_x = 0
+        self.circle_center_y = 0
+
+    def update(self):
+
+        """ Update the pitchfork's position. """
+        # Calculate a new x, y
+        self.center_x = self.circle_radius * math.sin(self.circle_angle) \
+            + self.circle_center_x
+        self.center_y = self.circle_radius * math.cos(self.circle_angle) \
+            + self.circle_center_y
+
+        # Increase the angle in prep for the next round.
+        self.circle_angle += self.circle_speed
 
 
 class MyGame(arcade.Window):
@@ -23,6 +79,7 @@ class MyGame(arcade.Window):
         # Variables that will hold sprite lists
         self.player_list = None
         self.apple_list = None
+        self.fork_list = None
 
         # Set up the player info
         self.player_sprite = None
@@ -32,6 +89,7 @@ class MyGame(arcade.Window):
         self.set_mouse_visible(False)
 
         self.apple_sound = arcade.load_sound(":resources:/sounds/coin2.wav")
+        self.fork_sound = arcade.load_sound(":resources:sounds/hurt3.wav")
 
         arcade.set_background_color(arcade.color.AMAZON)
 
@@ -41,6 +99,7 @@ class MyGame(arcade.Window):
         # Sprite lists
         self.player_list = arcade.SpriteList()
         self.apple_list = arcade.SpriteList()
+        self.fork_list = arcade.SpriteList()
 
         # Score
         self.score = 0
@@ -53,26 +112,48 @@ class MyGame(arcade.Window):
         self.player_sprite.center_y = 50
         self.player_list.append(self.player_sprite)
 
-        # Create the coins
+        # Create the apples
         for i in range(APPLE_COUNT):
 
             # Create the apple instance
             # Apple image from vecteezy.com
             #<a href="https://www.vecteezy.com/free-png/apple">Apple PNGs by Vecteezy</a>
-            apple = arcade.Sprite("apple.png", SPRITE_SCALING_APPLE)
+            apple = Apple("apple.png", SPRITE_SCALING_APPLE)
 
-            # Position the coin
+            # Position the apple
             apple.center_x = random.randrange(SCREEN_WIDTH)
             apple.center_y = random.randrange(SCREEN_HEIGHT)
 
-            # Add the coin to the lists
+            # Add the apple to the lists
             self.apple_list.append(apple)
+
+        # Create the pitchforks
+        for i in range(FORK_COUNT):
+
+            # Create the pitchfork instance
+            # Pitchfork image from vecteezy.com
+            # <a href="https://www.vecteezy.com/free-png/pitchfork">Pitchfork PNGs by Vecteezy</a>
+            fork = arcade.Sprite("pitchfork.png", SPRITE_SCALING_FORK)
+
+            # Position the center of the circle the coin will orbit
+            fork.circle_center_x = random.randrange(SCREEN_WIDTH)
+            fork.circle_center_y = random.randrange(SCREEN_HEIGHT)
+
+            # Random radius from 10 to 200
+            fork.circle_radius = random.randrange(10, 200)
+
+            # Random start angle from 0 to 2pi
+            fork.circle_angle = random.random() * 2 * math.pi
+
+            # Add the fork to the lists
+            self.fork_list.append(fork)
 
     def on_draw(self):
         """ Draw everything """
         arcade.start_render()
         self.apple_list.draw()
         self.player_list.draw()
+        self.fork_list.draw()
 
         # Put the text on the screen.
         output = f"Score: {self.score}"
@@ -91,15 +172,22 @@ class MyGame(arcade.Window):
         # Call update on all sprites (The sprites don't do much in this
         # example though.)
         self.apple_list.update()
+        self.fork_list.update()
 
         # Generate a list of all sprites that collided with the player.
-        apples_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.apple_list)
+        sprites_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.apple_list)
 
         # Loop through each colliding sprite, remove it, and add to the score.
-        for apple in apples_hit_list:
-            apple.remove_from_sprite_lists()
+        for apple in sprites_hit_list:
+            apple.reset_pos()
             self.score += 1
             arcade.play_sound(self.apple_sound)
+
+        sprites_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.fork_list)
+        for fork in sprites_hit_list:
+            fork.remove_from_sprite_lists()
+            self.score -= 1
+            arcade.play_sound(self.fork_sound)
 
 
 def main():
