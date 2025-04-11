@@ -10,7 +10,6 @@ SPRITE_SCALING_APPLE = 0.012
 SPRITE_SCALING_FORK = 0.01
 FORK_COUNT = 50
 APPLE_COUNT = 50
-
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
@@ -20,12 +19,6 @@ class Apple(arcade.Sprite):
     the arcade library's "Sprite" class.
     """
 
-    def reset_pos(self):
-        # Reset the apple to a random spot above the screen
-        self.center_y = random.randrange(SCREEN_HEIGHT + 20,
-                                         SCREEN_HEIGHT + 100)
-        self.center_x = random.randrange(SCREEN_WIDTH)
-
     def update(self):
         # Move the apple
         self.center_y -= 1
@@ -33,7 +26,9 @@ class Apple(arcade.Sprite):
         # See if the apple has fallen off the bottom of the screen.
         # If so, reset it.
         if self.top < 0:
-            self.reset_pos()
+            self.center_y = random.randrange(SCREEN_HEIGHT + 20,
+                                             SCREEN_HEIGHT + 100)
+            self.center_x = random.randrange(SCREEN_WIDTH)
 
 class Pitchfork(arcade.Sprite):
 
@@ -88,7 +83,7 @@ class MyGame(arcade.Window):
         # Don't show the mouse cursor
         self.set_mouse_visible(False)
 
-        self.apple_sound = arcade.load_sound(":resources:/sounds/coin2.wav")
+        self.apple_sound = arcade.load_sound("crunch.wav")
         self.fork_sound = arcade.load_sound(":resources:sounds/hurt3.wav")
 
         arcade.set_background_color(arcade.color.AMAZON)
@@ -133,7 +128,7 @@ class MyGame(arcade.Window):
             # Create the pitchfork instance
             # Pitchfork image from vecteezy.com
             # <a href="https://www.vecteezy.com/free-png/pitchfork">Pitchfork PNGs by Vecteezy</a>
-            fork = arcade.Sprite("pitchfork.png", SPRITE_SCALING_FORK)
+            fork = Pitchfork("pitchfork.png", SPRITE_SCALING_FORK)
 
             # Position the center of the circle the coin will orbit
             fork.circle_center_x = random.randrange(SCREEN_WIDTH)
@@ -163,23 +158,28 @@ class MyGame(arcade.Window):
         """ Handle Mouse Motion """
 
         # Move the center of the player sprite to match the mouse x, y
-        self.player_sprite.center_x = x
-        self.player_sprite.center_y = y
+        if len(self.apple_list) > 0:
+            self.player_sprite.center_x = x
+            self.player_sprite.center_y = y
 
     def update(self, delta_time):
         """ Movement and game logic """
 
         # Call update on all sprites (The sprites don't do much in this
         # example though.)
-        self.apple_list.update()
-        self.fork_list.update()
+        if len(self.apple_list) > 0:
+            # Prints "Game Over" when all the apples are eaten
+            output = "Game Over"
+            arcade.draw_text(output, 250, 300, arcade.color.WHITE, 40)
+            self.apple_list.update()
+            self.fork_list.update()
 
         # Generate a list of all sprites that collided with the player.
         sprites_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.apple_list)
 
         # Loop through each colliding sprite, remove it, and add to the score.
         for apple in sprites_hit_list:
-            apple.reset_pos()
+            apple.remove_from_sprite_lists()
             self.score += 1
             arcade.play_sound(self.apple_sound)
 
