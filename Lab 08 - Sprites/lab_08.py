@@ -153,6 +153,10 @@ class MyGame(arcade.Window):
         # Put the text on the screen.
         output = f"Score: {self.score}"
         arcade.draw_text(output, 10, 20, arcade.color.WHITE, 14)
+        # Prints "Game Over" when all the apples are eaten
+        if len(self.apple_list) == 0:
+            output = "Game Over"
+            arcade.draw_text(output, 235, SCREEN_HEIGHT // 2, arcade.color.WHITE, 50)
 
     def on_mouse_motion(self, x, y, dx, dy):
         """ Handle Mouse Motion """
@@ -168,9 +172,6 @@ class MyGame(arcade.Window):
         # Call update on all sprites (The sprites don't do much in this
         # example though.)
         if len(self.apple_list) > 0:
-            # Prints "Game Over" when all the apples are eaten
-            output = "Game Over"
-            arcade.draw_text(output, 250, 300, arcade.color.WHITE, 40)
             self.apple_list.update()
             self.fork_list.update()
 
