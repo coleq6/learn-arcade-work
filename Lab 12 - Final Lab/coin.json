@@ -1,0 +1,14 @@
+{ "columns":1,
+ "image":"..\/Platformers\/kenney_platformer-art-deluxe\/Base pack\/Items\/coinGold.png",
+ "imageheight":70,
+ "imagewidth":70,
+ "margin":0,
+ "name":"Coin",
+ "spacing":0,
+ "tilecount":1,
+ "tiledversion":"1.11.2",
+ "tileheight":70,
+ "tilewidth":70,
+ "type":"tileset",
+ "version":"1.10"
+}
