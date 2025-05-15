@@ -6,7 +6,7 @@ def split_line(line):
     return re.findall('[A-Za-z]+(?:\'[A-Za-z]+)?',line)
 
 def read_in_file(file_name):
-    with open("dictionary.txt") as dictionary_words:
+    with open(file_name) as dictionary_words:
         dictionary_list = []
 
         for line in dictionary_words:
@@ -19,35 +19,38 @@ def read_in_file(file_name):
         return dictionary_list
 
 
-
-
-def linear_search(dictionary_list):
+def linear_search(list_of_words, word):
 
     # Start at the beginning of the list
     current_list_position = 0
 
     # Loop until you reach the end of the list, or the value at the
     # current position is equal to the key
-    while current_list_position < len(dictionary_list) and dictionary_list[current_list_position]:
+    while current_list_position < len(list_of_words) and word.upper() != list_of_words[current_list_position]:
 
         # Advance to the next item in the list
         current_list_position += 1
 
-    return current_list_position
+    if current_list_position < len(list_of_words):
+
+    else:
+
+
 
 def main():
-    dictionary_list = read_in_file("dictionary.txt")
-    list_position = linear_search(dictionary_list)
-    if list_position < len(dictionary_list):
-        print( "There are", len(dictionary_list), "words in the dictionary.")
-
-    chapter_lines = read_in_file("AliceInWonderland200.txt")
-    for i in range(len(chapter_lines)):
-        words = split_line(chapter_lines[i])
-        for word in words:
-            if not linear_search(word.upper(), dictionary_words):
-                print(f'The word \'{word}\' is not in the dictionary')
-                print(f'This word is found on line {i + 1}.')
+    #dictionary_list = read_in_file("dictionary.txt")
+   # list_position = linear_search(dictionary_list)
+    #if list_position < len(dictionary_list):
+     #   print( "There are", len(dictionary_list), "words in the dictionary.")
+    current_line_position = 5
+    with open("AliceInWonderLand200.txt") as chapter_lines:
+        for line in chapter_lines:
+            current_line_position += 1
+            word_list = split_line(line)
+            for word in word_list):
+                if not linear_search(dictionary_list, word.upper()):
+                    print(f'The word \'{word}\' is not in the dictionary')
+                    print(f'This word is found on line {i + 1}.')
 
 main()
 

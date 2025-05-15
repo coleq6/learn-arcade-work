@@ -35,11 +35,10 @@ class MyGame(arcade.Window):
         self.wall_list = None
         self.grass_list = None
 
-        # Score
+        # Set up the player info
         self.score = 0
-
-        # Set up the player
         self.player_sprite = None
+        self.score_text = None
 
         # Physics engine so we don't run into walls.
         self.physics_engine = None
@@ -71,6 +70,8 @@ class MyGame(arcade.Window):
 
 
         # Set up the player
+        score = 0
+
         # Mouse from kenney.nl
         self.player_sprite = arcade.Sprite(":resources:images/enemies/wormGreen.png",
                                            scale=0.4, flipped_horizontally=True)
@@ -192,6 +193,7 @@ class MyGame(arcade.Window):
         self.wall_list.draw()
         self.player_list.draw()
         self.grass_list.draw()
+
 
         # Select the (unscrolled) camera for our GUI
         self.camera_gui.use()
